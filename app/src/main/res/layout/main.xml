@@ -1,0 +1,59 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="top"
+	android:background="#eeeeee"
+	android:orientation="vertical">
+
+    <TextView
+		android:id="@+id/usernameTxt"
+        android:text="Username:"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+	
+	<EditText
+		android:id="@+id/usernameEdit"
+		android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+		android:text=""/>
+
+	<TextView
+        android:text="Password:"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+	<EditText
+		android:id="@+id/passwordEdit"
+		android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+		android:inputType="textPassword"
+		android:text=""
+		/>
+	<TextView
+        android:text="Studiengang:"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+	<EditText
+		android:id="@+id/studiengangEdit"
+		android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+		android:text=""
+	/>
+	<Button
+		android:id="@+id/saveBtn"
+		android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+		android:text="Daten speichern"/>
+	<Button
+		android:id="@+id/loadBtn"
+		android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+		android:text="Notenspiegel laden"/>
+	
+	<WebView
+		android:id="@+id/view"
+		android:visibility="invisible"
+		android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

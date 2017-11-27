@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org" />
+
+  <title>load demo</title>
+      <script type="text/javascript" src="file:///android_asset/jquery-3.2.1.min.js">
+</script>
+</head>
+
+<body id="body" style=background-color:#eeeeee;"
+  <div id="loading" align="center"><img src="spinner.gif"/></div>
+  <div id="test" style="display:none">
+    <form method="post" action=
+    "https://vorlesungen.tu-bs.de/qisserver/rds?state=user&amp;type=1&amp;category=auth.login&amp;startpage=portal.vm&amp;breadCrumbSource=portal"
+    id="loginform" name="loginform" class="formular">
+      <!-- Benutzername und Passwort -->
+
+      <div class="portalcontent2">
+        <div class="containerLogin">
+          <ol>
+            <li><label for="username">Benutzerkennung</label> <input id="username" type=
+            "text" name="asdf" value="{USERNAME}" tabindex="1" /></li>
+
+            <li><label for="password">Passwort</label> <input type="password" id=
+            "password" name="fdsa" value="{PASSWORD}" tabindex="2" /></li>
+
+            <li><button type="submit" id="post-btn">Submit</button></li>
+          </ol>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div>
+    <p id="text"></p>
+  </div>
+
+  <div id="error-log"></div>
+  <script type="text/javascript">
+//<![CDATA[
+$(function () {
+    var $loading =$('#loadingDiv').hide();
+	$(document).ajaxStart(function() {
+	  $loading.show;
+	})
+	.ajaxStop(function(){
+	  $loading.hide();
+	});
+    $(document).ready(function() {
+      $("#post-btn").click();
+    });
+	//login
+	$('form[name=loginform]').submit(function () {
+		$("#text").append("Insgesamt werden 10 Schritte durchlaufen.<br>");
+	    $("#text").append("0. einloggen<br>");
+        var studiengang = "{STUDIENGANG}";
+		var request = $.ajax({
+			type: "POST",
+			url: $(this).attr('action'),
+			dataType: "html",
+			error: function (xhr, status, error) {
+				alert("Beim Einloggen ist etwas schief gegangen (siehe unten die Details.)");
+				return false;
+			},
+			data: $(this).serialize(), // serializes the form's elements.
+			success: function (loginSiteResponse) {
+				$("#text").append("1. Daten erfolgreich gesendet.<br>");
+				var linkPruefungsdaten = $(loginSiteResponse).find('a').filter(function (index) {
+					return $(this).text() === "Prüfungsverwaltung";
+				});
+				$("#text").append("2. "+$(linkPruefungsdaten).text()+"<br>");
+				//dahin gehen
+				$.get($(linkPruefungsdaten).attr('href'), function (overview) {
+					$("#text").append("3. Prüfungsverwaltung anzeigen<br>");
+					var linkNotenspiegel = $(overview).find('a').filter(function (index) {
+						return $(this).text() === "Notenspiegel";
+					});
+					$("#text").append("4. "+$(linkNotenspiegel).text() + " öffnen<br>");
+					//aufklappen der Studiengänge
+					$.get($(linkNotenspiegel).attr('href'), function (typeSelection) {
+						$("#text").append("5. Zum Notenspiegel gelangt<br>");
+						var linkTypeSelections = $(typeSelection).find('a.darkbluecolor');
+						console.log($(linkTypeSelections).length);
+						
+						var selectedDom="";
+					    $.each($(linkTypeSelections), function(index, element) {
+						    console.log($(element).attr('href'));
+							  $.ajax({
+							    method: "GET",
+								async: false,
+							    url: $(element).attr('href'),
+								dataType: "html",
+								success: function(data){
+								  selectedDom=data;
+								}
+							  })
+						});
+						
+						$("#text").append("6. Studiengänge ermittelt.<br>");
+						var linkTypeSelection;
+						if(studiengang === "") {
+						  linkTypeSelection = $(selectedDom).find('font.darkbluecolor').filter(function (index) { return $(this).parent().parent().siblings('a.darkbluecolor').text().indexOf("Master") >= 0; }).first().next();
+						  if (typeof linkTypeSelection === "undefined") {
+						    linkTypeSelection = $(selectedDom).find('font.darkbluecolor').filter(function (index) { return $(this).parent().parent().siblings('a.darkbluecolor').text().indexOf("Bachelor") >= 0; }).first().next();
+						  }
+						}
+					    else {
+						  linkTypeSelection = $(selectedDom).find('font.darkbluecolor').filter(function (index) { return $(this).text().indexOf(studiengang) >= 0; }).next();
+						}
+						console.log($(linkTypeSelection).attr('href'));
+						//zur Finalen Auswahl gehen
+							$("#text").append("7. Studiengang ausgewählt<br>");
+							var linkFinalSite = $(linkTypeSelection); //$(finalSite).find('a[title="Leistungen anzeigen"]:first');
+							$("#text").append("8. Link holen "+"<br>");
+							//select download link und runterladen 
+							$.get($(linkFinalSite).attr('href'), function (downloadSite) {
+								$("#text").append("9. Link nochmal bestätigt<br>");
+								var ele = $(downloadSite).find('img[alt="PDF-Übersicht: Studienverlauf"]');
+								var linkDownload = $(ele).parent();
+								var link = $(linkDownload).attr("href");
+								//link=link.substring(0,link.indexOf(";")) + link.substring(link.indexOf("?"), link.length);
+                                console.log(link);
+								
+								window.location.href=link;
+								//$('#body').empty();
+
+								return false;
+							}, "html");
+                            
+							return false;
+					return false;
+				}, "html");
+				return false;
+			})
+		}
+	});
+});
+
+
+});       
+  </script>
+</body>
+</html>
